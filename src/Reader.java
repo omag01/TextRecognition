@@ -128,7 +128,7 @@ public class Reader {
 	}
 	
 	/**
-	 * Returns the text pictured in the image <i>f</i>.
+	 * Returns the text pictured in the image corresponding to file <i>f</i>.
 	 * 
 	 * @param f The file to read text from.
 	 * @return The text in the picture.
@@ -160,17 +160,23 @@ public class Reader {
 	
 	/**
 	 * Returns the single character pictured in the portion of img with pixels
-	 * with x coordinates between lo and hi (inclusive). If the pixels in the
+	 * with x coordinates in the range [lo, hi). If the pixels in the
 	 * rectangle (lo, 0) (hi, 0) (hi, img.getHeight()), (lo, img.getHeight()) do
 	 * not represent a single character, the result is undefined.
 	 * 
 	 * @param img The BufferedImage from which to read.
-	 * @param lo The leftmost pixel from which to read.
-	 * @param hi The rightmost pixel to read until.
-	 * @requires non-null parameters and values of lo and hi in [0, img.getWidth() - 1].
+	 * @param lo The leftmost pixel from which to read (inclusive).
+	 * @param hi The rightmost pixel to read until (exclusive).
+	 * @requires non-null parameters and unique values of lo in [0, img.getWidth() - 1]
+	 * 			 and hi in [1, img.getWidth()], with lo <= hi.
 	 * @return The character written in the region of <i>img</i> between lo and hi.
 	 */
 	private char readChar(BufferedImage img, int lo, int hi) {
+		assert lo >= 0 && lo < img.getWidth();
+		assert hi > 0 && hi <= img.getWidth();
+		assert lo <= hi;
+		
+		// FIXME: Put actual algorithm here...
 		return 'a';
 	}
 	
@@ -192,6 +198,7 @@ public class Reader {
 	 * @throws IOException if the file data/<i>language</i>.txt cannot be found.
 	 */
 	private Map<HashSet<Point>, Character> loadCharacters(String language) throws IOException {
+		assert language != null;
 		BufferedReader reader = new BufferedReader(new FileReader("data/" + language + ".txt"));
 		try {
 			Map<HashSet<Point>, Character> characters = new HashMap<>();

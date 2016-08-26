@@ -10,8 +10,10 @@ import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -39,6 +41,9 @@ public class ReaderMain {
 	/** The panel directly below the canvas (containing the label and button). */
 	private JPanel south;
 	
+	/** The panel on the left of the south panel containing the clear button. */
+	private JPanel southwest;
+	
 	/** The text representing the handwriting currently in the canvas. */
 	private JLabel label;
 	
@@ -57,7 +62,8 @@ public class ReaderMain {
 		tryToFixLookAndFeel();
 		r = new Reader();
 		frame = new JFrame();
-		south = new JPanel();
+		south = new JPanel(new GridLayout());
+		southwest = new JPanel(new FlowLayout());
 		canvas = new DrawingCanvas(400, 400);
 		label = new JLabel("Recognized text will appear here");
 		clearButton = new JButton("Clear");
@@ -76,15 +82,16 @@ public class ReaderMain {
 			}
 		});
 		
-		// add button and label to south panel
-		south.add(label, BorderLayout.CENTER);
-		south.add(clearButton, BorderLayout.EAST);
+		// configure south panel
+		southwest.add(clearButton);
+		south.add(southwest);
+		south.add(label);
 		
 		// add components to frame and set initial frame settings
 		frame.add(canvas, BorderLayout.CENTER);
 		frame.add(south, BorderLayout.SOUTH);
 		frame.pack();
-		frame.setLocationRelativeTo(null);
+		frame.setLocationRelativeTo(null); // centers window
 		frame.setTitle("Text Recognition");
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -125,8 +132,12 @@ public class ReaderMain {
 		 * 
 		 * @param width The width of the DrawingCanvas.
 		 * @param height The height of the DrawingCanvas.
+		 * @throws IllegalArgumentException if width or height is not positive.
 		 */
 		public DrawingCanvas(int width, int height) {
+			if (width <= 0 || height <= 0) {
+				throw new IllegalArgumentException("Dimensions must be positive...");
+			}
 			// set up image
 			this.width = width;
 			this.height = height;
@@ -187,6 +198,7 @@ public class ReaderMain {
 			 * to draw at the location of the mouse press (as indicated by e).
 			 * 
 			 * @param e The MouseEvent representing the mouse press.
+			 * @requires e != null.
 			 */
 		    @Override
 		    public void mousePressed(MouseEvent e) {
@@ -198,6 +210,7 @@ public class ReaderMain {
 		     * the press point to the location of the drop (as indicated by e).
 		     * 
 		     * @param e The MouseEvent representing the mouse drag-and-drop.
+		     * @requires e != null
 		     */
 		    @Override
 		    public void mouseDragged(MouseEvent e) {
@@ -211,8 +224,8 @@ public class ReaderMain {
 		        // read image
 		        try {
 			        // read image and reset label to proper text
-		        	File f = new File("src/temp.jpg");
-					ImageIO.write(img, "jpg", f);
+		        	File f = new File("src/temp.png");
+					ImageIO.write(img, "png", f);
 			        label.setText(r.read(f));
 			        frame.repaint();
 			        start = end;
